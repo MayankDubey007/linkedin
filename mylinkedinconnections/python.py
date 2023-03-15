@@ -1,14 +1,26 @@
+
 from bs4 import BeautifulSoup
-file = open("linkedin2.txt", "r",encoding='utf-8')
+file = open("linkedin2.txt", "r", encoding='utf-8')
 contents = file.read()
-contents = contents.replace("app-aware-link  update-components-actor__container-link relative display-flex flex-grow-1","jjjjj")
+contents = contents.replace(
+    "app-aware-link  update-components-actor__container-link relative display-flex flex-grow-1", "jjjjj")
+contents = contents.replace('''<span class="update-components-actor__supplementary-actor-info t-14 t-normal ml1
+              t-black--light">''','''<span class="c_connection">''')
 soup = BeautifulSoup(contents, 'html.parser')
 # tags = soup.select(".jjjjj")
 # tags = soup.find_all("")
 tags = soup.find_all("a", class_="jjjjj")
+connections = soup.find_all("span", class_="c_connection")
 
+only_connection = []
+for connection in connections:
+    only_connection.append((connection.text[4:7]))
+# print(type(only_connection))
+# print(type(list(tags)))
+
+    
 with open('items2.html','w') as file:
-    head = '''<!doctype html>
+  head = '''<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -55,18 +67,17 @@ with open('items2.html','w') as file:
   <h1>bootstrap-icons</h1>
 
   <div class="icons">'''
-    file.writelines(head)
+  file.writelines(head)
 
 items =""
-for tag in tags:
-    file1 = open("items2.html","a")
+for c,t in zip(only_connection,tags):
     item = f'''
-    <div class="icon">
+    <div class="icon">{c}
     <div class="label">
     </div>
     
 
-    <a href='{tag.get("href")}' target="_blank">
+    <a href='{t.get("href")}' target="_blank">
       <button  class="my-button">
           Click Here
       </button>
@@ -75,9 +86,12 @@ for tag in tags:
     
     </div>
     '''
-    items += item 
-file1.writelines(items)
-footer = '''
+    items += item
+    # print(c,"&&&&&&&&&&&&&&&&",t)
+with open("items2.html", "a") as file:
+    file.writelines(items)
+    
+    footer = '''
 </div>
 </body>
 
@@ -93,21 +107,5 @@ footer = '''
   </script>
 
 </html>'''
-file1.writelines(footer)
-file1.close() 
-
-# Open the file in read mode
-# with open('linkedin.txt','r',encoding='utf-8') as file:
-
-#     # Read the contents of the file line by line
-#     lines = file.readlines()
-
-#     # Get the fourth line and all subsequent lines
-#     selected_lines = lines[3]
-#     print(selected_lines)
-#     # # Print the selected lines
-#     # for line in selected_lines:
-#     #     print(line.strip())
-
-        
-    
+    file.writelines(footer)
+    file.close() 
